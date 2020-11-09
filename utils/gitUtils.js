@@ -36,15 +36,23 @@ reset = (hash) => {
   exec(`git reset --hard ${hash}`);
 };
 
-pushMaster = (hash) => {
-  exec(`git push --force origin ${hash}:master`);
+pushMaster = (hash, mainOrMaster) => {
+  exec(`git push --force origin ${hash}:${mainOrMaster}`);
 };
 
 push = () => {
   exec(`git push -u origin code-review`);
 };
 
-constructNewPRUrl = () => {
+getMainOrMaster = () => {
+  if (exec("git branch -a").toString().includes("master")){
+    return "master";
+  } else {
+    return "main";
+  }
+}
+
+constructNewPRUrl = (mainOrMaster) => {
   const res = exec(`git config --get remote.origin.url`).toString();
   // git@github.com:ersel/music-library-api-mysql.git
   const [host, branch] = res.split("/");
@@ -54,8 +62,10 @@ constructNewPRUrl = () => {
 
   // branch = music-library-api-mysql.git
   const [repo, gitSuffix] = branch.split(".");
-  return `https://github.com/${username}/${repo}/compare/master...${username}:code-review?expand=1`;
+  return `https://github.com/${username}/${repo}/compare/${mainOrMaster}...${username}:code-review?expand=1`;
 };
+
+
 
 module.exports = {
   getCommitToSplit,
@@ -64,4 +74,5 @@ module.exports = {
   pushMaster,
   push,
   constructNewPRUrl,
+  getMainOrMaster
 };
