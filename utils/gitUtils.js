@@ -1,6 +1,6 @@
 const exec = require("child_process").execSync;
 
-const getCommitToSplit = () => {
+const getCommitToSplit = (pairProgramming) => {
   /* find last commit by the author */
   const commits = exec("git log --pretty=format:'%H %ad %ae' --date=short")
     .toString()
@@ -11,8 +11,12 @@ const getCommitToSplit = () => {
       return { hash, date, user };
     });
 
+  const firstCommit = commits[commits.length - 1];
   const mostRecentCommit = commits[0];
   const lastAuthor = mostRecentCommit.user;
+  if (pairProgramming) {
+    return firstCommit;
+  }
 
   for (let i = 0; i < commits.length; i++) {
     if (commits[i].user !== lastAuthor) {
@@ -20,7 +24,6 @@ const getCommitToSplit = () => {
     }
   }
 
-  const firstCommit = commits[commits.length - 1];
   return firstCommit;
 };
 
@@ -45,12 +48,12 @@ push = () => {
 };
 
 getMainOrMaster = () => {
-  if (exec("git branch -a").toString().includes("master")){
+  if (exec("git branch -a").toString().includes("master")) {
     return "master";
   } else {
     return "main";
   }
-}
+};
 
 constructNewPRUrl = (mainOrMaster) => {
   const res = exec(`git config --get remote.origin.url`).toString();
@@ -65,8 +68,6 @@ constructNewPRUrl = (mainOrMaster) => {
   return `https://github.com/${username}/${repo}/compare/${mainOrMaster}...${username}:code-review?expand=1`;
 };
 
-
-
 module.exports = {
   getCommitToSplit,
   checkout,
@@ -74,5 +75,5 @@ module.exports = {
   pushMaster,
   push,
   constructNewPRUrl,
-  getMainOrMaster
+  getMainOrMaster,
 };

@@ -9,14 +9,14 @@ const {
   getMainOrMaster 
 } = require("./utils/gitUtils");
 
+const pairProgramming = process.argv.includes("--pair");
 const mainOrMaster = getMainOrMaster();
-
-const commitToSplit = getCommitToSplit();
+const commitToSplit = getCommitToSplit(pairProgramming);
 console.log(
   `branching out from ${commitToSplit.hash} at ${commitToSplit.date}`
 );
 checkout("code-review", true);
-checkout(`${mainOrMaster}`);
+checkout(mainOrMaster);
 reset(commitToSplit.hash);
 pushMaster(commitToSplit.hash, mainOrMaster);
 push("code-review");
